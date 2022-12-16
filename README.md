@@ -17,8 +17,8 @@
 Clone the repository and install dependencies
 
 ```
-git clone
-cd
+git clone git@github.com:bVNyDUKE/qa-test.git
+cd qa-test
 npm install
 ```
 
