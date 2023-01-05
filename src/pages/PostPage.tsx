@@ -9,6 +9,8 @@ function PostPage() {
     state: { users, posts, comments, loading, error },
   } = usePosts();
 
+  const { postId } = useParams();
+
   if (loading) {
     return <Message text="Loading" />;
   }
@@ -16,8 +18,6 @@ function PostPage() {
   if (error) {
     return <Message text="An error occured" />;
   }
-
-  const { postId } = useParams();
 
   const post = posts.filter((p) => p.id === parseInt(postId ?? ''))?.at(0);
 
