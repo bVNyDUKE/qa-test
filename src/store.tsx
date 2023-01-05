@@ -101,7 +101,7 @@ const usePosts = () => {
     if (!context.state.initDone) {
       initStore(context.dispatch);
     }
-  }, []);
+  }, [context.state.initDone, context.dispatch]);
 
   return context;
 };
