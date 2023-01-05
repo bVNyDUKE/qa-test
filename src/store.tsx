@@ -6,11 +6,17 @@ type Action =
   | { type: 'LOADING' }
   | { type: 'UPDATE'; payload: State }
   | { type: 'ERROR'; payload: string }
-  | { type: 'SET_FILTER'; payload: string };
+  | { type: 'SET_FILTER'; payload: string }
+  | { type: 'SET_PAGE'; payload: number };
+
 type Dispatch = (action: Action) => void;
+
 type State = {
   posts: Post[];
+  paginatedPosts: Post[];
   filteredPosts: Post[];
+  page: number;
+  pageCount: number;
   users: User[];
   comments: Comment[];
   filter: string;
@@ -42,11 +48,27 @@ const postsReducer = (state: State, action: Action) => {
         error: action.payload,
       };
     }
+    case 'SET_PAGE': {
+      return {
+        ...state,
+        page: action.payload,
+        paginatedPosts: state.filteredPosts.slice(
+          (action.payload - 1) * 20,
+          action.payload * 20,
+        ),
+      };
+    }
     case 'SET_FILTER': {
       if (!action.payload) {
+        const paginatedPosts = state.posts.slice(0, 20);
+        const pageCount = Math.ceil(state.posts.length / 20);
+        const page = 1;
         return {
           ...state,
           filteredPosts: state.posts,
+          pageCount,
+          page,
+          paginatedPosts,
         };
       }
       const user = state.users
@@ -61,10 +83,18 @@ const postsReducer = (state: State, action: Action) => {
         };
       }
 
+      const filteredPosts = state.posts.filter((p) => p.userId === user.id);
+      const paginatedPosts = filteredPosts.slice(0, 20);
+      const pageCount = Math.ceil(filteredPosts.length / 20);
+      const page = 1;
+
       return {
         ...state,
         filter: action.payload,
-        filteredPosts: state.posts.filter((p) => p.userId === user.id),
+        filteredPosts,
+        pageCount,
+        page,
+        paginatedPosts,
       };
     }
     default: {
@@ -76,7 +106,10 @@ const postsReducer = (state: State, action: Action) => {
 const PostsProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = React.useReducer(postsReducer, {
     posts: [],
+    page: 1,
+    pageCount: 0,
     filteredPosts: [],
+    paginatedPosts: [],
     filter: '',
     comments: [],
     users: [],
@@ -118,6 +151,9 @@ const initStore = async (dispatch: Dispatch) => {
       type: 'UPDATE',
       payload: {
         posts: posts as Post[],
+        page: 1,
+        pageCount: Math.ceil(posts.length / 20),
+        paginatedPosts: posts.slice(0, 20),
         users: users as User[],
         filteredPosts: posts as Post[],
         comments: comments as Comment[],

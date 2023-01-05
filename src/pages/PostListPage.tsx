@@ -8,7 +8,7 @@ import { helloWrapper } from '@/utils/helloWrapper';
 
 function PostListPage() {
   const {
-    state: { users, filteredPosts, comments, loading, error, filter },
+    state: { users, paginatedPosts, pageCount, page, comments, loading, error, filter },
     dispatch,
   } = usePosts();
 
@@ -30,7 +30,7 @@ function PostListPage() {
           icon={<Magnifier />}
         />
       </div>
-      {filteredPosts.map((post) => {
+      {paginatedPosts.map((post) => {
         const username = users.find((u) => u.id === post.userId)?.username;
         const postComments = comments.filter((c) => c.postId === post.id);
         return (
@@ -44,6 +44,39 @@ function PostListPage() {
           </Link>
         );
       })}
+      <div className="space-x-5">
+        <button
+          className="text-white border-white border p-2"
+          disabled={page === 1}
+          onClick={() => dispatch({ type: 'SET_PAGE', payload: 1 })}
+        >
+          First
+        </button>
+        <button
+          className="text-white border-white border p-2"
+          disabled={page === 1}
+          onClick={() => dispatch({ type: 'SET_PAGE', payload: page - 1 })}
+        >
+          Previous
+        </button>
+        <div className="text-white border-white border p-2 text-center inline">
+          {page} of {pageCount}
+        </div>
+        <button
+          className="text-white border-white border p-2"
+          disabled={page === pageCount}
+          onClick={() => dispatch({ type: 'SET_PAGE', payload: page + 1 })}
+        >
+          Next
+        </button>
+        <button
+          className="text-white border-white border p-2"
+          disabled={page === pageCount}
+          onClick={() => dispatch({ type: 'SET_PAGE', payload: pageCount })}
+        >
+          Last
+        </button>
+      </div>
     </div>
   );
 }
